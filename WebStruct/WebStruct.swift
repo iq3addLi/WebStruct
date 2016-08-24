@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 enum Error : ErrorType{
     case network(ErrorType)
     case http(ErrorType)
