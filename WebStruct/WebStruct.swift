@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum Error : ErrorType{
+public enum Error : ErrorType{
     case network(ErrorType)
     case http(ErrorType)
     case ignoreData
@@ -16,21 +16,21 @@ enum Error : ErrorType{
     case application(WebSerializable)
 }
 
-protocol WebSerializable{
+public protocol WebSerializable{
     init (fromJson:AnyObject) throws
 }
 
-protocol WebInitializable : WebSerializable {
+public protocol WebInitializable : WebSerializable {
     static func path() -> String
 }
 
-protocol WebDeserializable {
+public protocol WebDeserializable {
     func toJsonData() -> AnyObject
 }
 
-struct Structer <T:WebInitializable,ERR:WebSerializable>{
+public struct Structer <T:WebInitializable,ERR:WebSerializable>{
     
-    func get<P:WebDeserializable>(param:P) throws -> T {
+    public func get<P:WebDeserializable>(param:P) throws -> T {
         
         guard let url = NSURL(string: T.path() )
             else{ fatalError() }

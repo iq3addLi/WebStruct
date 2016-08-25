@@ -10,11 +10,6 @@ import Foundation
 
 @testable import WebStruct
 
-struct Error : ErrorType{
-    let code:Int
-    let reason:String
-}
-
 struct TestParam {
     let param:String
 }
@@ -62,6 +57,11 @@ extension ErrorStruct : WebInitializable {
     }
 }
 
+
+struct Error : ErrorType{
+    let code:Int
+    let reason:String
+}
 
 struct ApplicationError : ErrorType{
     let code:Int
