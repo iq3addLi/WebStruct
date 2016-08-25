@@ -30,6 +30,8 @@ public protocol WebDeserializable {
 
 public struct Structer <T:WebInitializable,ERR:WebSerializable>{
     
+    public init(){}
+    
     public func get<P:WebDeserializable>(param:P) throws -> T {
         
         guard let url = NSURL(string: T.path() )
