@@ -28,6 +28,7 @@ public protocol WebDeserializable {
     func toJsonData() -> AnyObject
 }
 
+
 public struct Structer <T:WebInitializable,ERR:WebSerializable>{
     
     public init(){}
@@ -50,7 +51,8 @@ public struct Structer <T:WebInitializable,ERR:WebSerializable>{
         var error:NSError?
         
         let semaphore = dispatch_semaphore_create(0)
-        let subtask = NSURLSession.sharedSession().dataTaskWithRequest( request ) { d,r,e in
+        let session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration(), delegate: NSURLSessionDelegateClass(), delegateQueue: nil)
+        let subtask = session.dataTaskWithRequest( request ) { d,r,e in
             data = d; response = r; error = e;
             dispatch_semaphore_signal(semaphore)
         }
@@ -84,5 +86,31 @@ public struct Structer <T:WebInitializable,ERR:WebSerializable>{
         }
         
         return gen
+    }
+}
+
+// 自己証明書回避
+class NSURLSessionDelegateClass : NSObject, NSURLSessionDelegate{
+    func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void){
+        
+        var disposition: NSURLSessionAuthChallengeDisposition = .PerformDefaultHandling
+        var credential: NSURLCredential?
+        
+        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
+            disposition = NSURLSessionAuthChallengeDisposition.UseCredential
+            credential = NSURLCredential(forTrust: challenge.protectionSpace.serverTrust!)
+        } else {
+            if challenge.previousFailureCount > 0 {
+                disposition = .CancelAuthenticationChallenge
+            } else {
+                credential = session.configuration.URLCredentialStorage?.defaultCredentialForProtectionSpace(challenge.protectionSpace)
+                
+                if credential != nil {
+                    disposition = .UseCredential
+                }
+            }
+        }
+        
+        completionHandler(disposition, credential)
     }
 }
