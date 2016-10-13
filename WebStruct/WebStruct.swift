@@ -27,7 +27,7 @@ public protocol WebInitializable : WebSerializable {
 }
 
 extension WebInitializable{
-    static func get(_ param:Self.inputType) throws -> Self{
+    static public func get(_ param:Self.inputType) throws -> Self{
         return try Structer<Self,Self.errorType>().get( param )
     }
 }
