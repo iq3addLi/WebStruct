@@ -23,6 +23,8 @@ public protocol WebSerializable{
 public protocol WebInitializable : WebSerializable {
     associatedtype inputType: WebDeserializable
     associatedtype errorType: WebSerializable
+    
+    static var timeout:TimeInterval { get }
     static func path() -> String
 }
 
@@ -49,7 +51,7 @@ public struct Structer <T:WebInitializable,ERR:WebSerializable>{
         guard let body = try? JSONSerialization.data(withJSONObject: param.toJsonData(), options: JSONSerialization.WritingOptions())
             else{ fatalError() }
         
-        var request = URLRequest(url:url, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:3.0)
+        var request = URLRequest(url:url, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:T.timeout)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField:"Content-Type")
         request.httpBody = body

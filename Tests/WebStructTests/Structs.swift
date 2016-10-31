@@ -23,6 +23,8 @@ extension DummyStruct : WebInitializable {
         return "http://localhost:8080/dummy"
     }
     
+    static var timeout = 3.0
+    
     init (fromJson:Any) throws{
         guard case let json as [String:Any] = fromJson
             else { throw ParseError(code: -1, reason: "not dictionary") }
@@ -45,6 +47,8 @@ extension ErrorStruct : WebInitializable {
     static func path() -> String {
         return "http://localhost:8080/error"
     }
+    
+    static var timeout = 3.0
     
     init (fromJson:Any) throws{
         // error intentionally
