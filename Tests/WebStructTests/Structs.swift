@@ -18,11 +18,7 @@ extension DummyStruct : WebInitializable {
     typealias inputType = TestParam
     typealias errorType = ApplicationError
 
-    
-    static func path() -> String {
-        return "http://localhost:8080/dummy"
-    }
-    
+    static var path = "http://localhost:8080/dummy"
     static var timeout = 3.0
     
     init (fromJson:Any) throws{
@@ -44,10 +40,7 @@ extension ErrorStruct : WebInitializable {
     typealias inputType = TestParam
     typealias errorType = ApplicationError
 
-    static func path() -> String {
-        return "http://localhost:8080/error"
-    }
-    
+    static var path = "http://localhost:8080/error"
     static var timeout = 3.0
     
     init (fromJson:Any) throws{

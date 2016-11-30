@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Dispatch
 
 public indirect enum Error : Swift.Error{
     case network(Swift.Error)
@@ -25,13 +26,14 @@ public protocol WebInitializable : WebSerializable {
     associatedtype errorType: WebSerializable
     
     static var timeout:TimeInterval { get }
-    static func path() -> String
+    static var path:String { get }
 }
 
 extension WebInitializable{
     static public func get(_ param:Self.inputType) throws -> Self{
         return try Structer<Self,Self.errorType>().get( param )
     }
+    static public var timeout:TimeInterval { return 5.0 }
 }
 
 public protocol WebDeserializable {
@@ -45,7 +47,7 @@ public struct Structer <T:WebInitializable,ERR:WebSerializable>{
     
     public func get<P:WebDeserializable>(_ param:P) throws -> T {
         
-        guard let url = URL(string: T.path() )
+        guard let url = URL(string: T.path )
             else{ fatalError() }
         
         guard let body = try? JSONSerialization.data(withJSONObject: param.toJsonData(), options: JSONSerialization.WritingOptions())
@@ -56,7 +58,11 @@ public struct Structer <T:WebInitializable,ERR:WebSerializable>{
         request.addValue("application/json", forHTTPHeaderField:"Content-Type")
         request.httpBody = body
         
+        #if os(macOS)
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate: URLSessionDelegateClass(), delegateQueue: nil)
+        #else
+        let session = URLSession(configuration: URLSessionConfiguration.default, delegate:nil, delegateQueue: nil)
+        #endif
         
         let semaphore = DispatchSemaphore(value: 0)
         
@@ -97,15 +103,18 @@ public struct Structer <T:WebInitializable,ERR:WebSerializable>{
     }
 }
 
+
 // 自己証明書回避
+#if os(macOS)
 class URLSessionDelegateClass : NSObject, URLSessionDelegate{
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void){
         
+
         var disposition: Foundation.URLSession.AuthChallengeDisposition = .performDefaultHandling
         var credential: URLCredential?
         
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
-            disposition = Foundation.URLSession.AuthChallengeDisposition.useCredential
+            disposition = .useCredential
             credential = URLCredential(trust: challenge.protectionSpace.serverTrust!)
         } else {
             if challenge.previousFailureCount > 0 {
@@ -118,7 +127,17 @@ class URLSessionDelegateClass : NSObject, URLSessionDelegate{
                 }
             }
         }
-        
         completionHandler(disposition, credential)
     }
 }
+
+#else
+
+extension URLRequest {
+    static func allowsAnyHTTPSCertificateForHost(host: String) -> Bool {
+        return true
+    }
+}
+
+#endif
+
