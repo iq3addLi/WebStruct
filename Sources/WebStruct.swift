@@ -58,7 +58,7 @@ public struct Structer <T:WebInitializable,ERR:WebSerializable>{
         request.addValue("application/json", forHTTPHeaderField:"Content-Type")
         request.httpBody = body
         
-        #if os(macOS)
+        #if os(macOS) || os(iOS)
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate: URLSessionDelegateClass(), delegateQueue: nil)
         #else
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate:nil, delegateQueue: nil)
@@ -105,7 +105,7 @@ public struct Structer <T:WebInitializable,ERR:WebSerializable>{
 
 
 // 自己証明書回避
-#if os(macOS)
+#if os(macOS) || os(iOS)
 class URLSessionDelegateClass : NSObject, URLSessionDelegate{
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void){
         
