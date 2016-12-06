@@ -14,7 +14,7 @@ It can be used only when the following conditions are satisfied.
 
 # Usage
 
-## Implement WebInitizalize of Struct for API Response
+## Implement WebInitializable of Struct for API Response
 
 
 ```Swift
@@ -117,5 +117,5 @@ extension CustomStruct : WebInitializable {
 ```
 # known Issues
 * Using this library on Linux will fail to pass memory between threads. The contents of optional will be destroyed and segmentation fault will occur. Because no stack trace is displayed, it is not possible to judge what happened at first glance.
-* Response will be replaced with a network library that can handle synchronization other than URLSession. On Linux, URLSession is not very good because correspondence of HTTPS is also insufficient.🐷
+* As a workaround, we are considering replacing it with a network library that can handle synchronization other than URLSession. On Linux, URLSession is not very good because correspondence of HTTPS is also insufficient.🐷
 
