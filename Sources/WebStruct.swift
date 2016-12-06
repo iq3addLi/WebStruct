@@ -25,15 +25,18 @@ public protocol WebInitializable : WebSerializable {
     associatedtype inputType: WebDeserializable
     associatedtype errorType: WebSerializable
     
-    static var timeout:TimeInterval { get }
     static var path:String { get }
+    static var timeout:TimeInterval { get }
+    static var configuration:URLSessionConfiguration { get }
 }
 
 extension WebInitializable{
     static public func get(_ param:Self.inputType) throws -> Self{
         return try Structer<Self,Self.errorType>().get( param )
     }
-    static public var timeout:TimeInterval { return 5.0 }
+    // default value
+    static public var timeout:TimeInterval { return 5.0 } // Dup URLSessionConfiguration.timeoutIntervalForRequest ?
+    static public var configuration:URLSessionConfiguration { return URLSessionConfiguration.default }
 }
 
 public protocol WebDeserializable {
@@ -59,9 +62,9 @@ public struct Structer <T:WebInitializable,ERR:WebSerializable>{
         request.httpBody = body
         
         #if os(macOS) || os(iOS)
-        let session = URLSession(configuration: URLSessionConfiguration.default, delegate: URLSessionDelegateClass(), delegateQueue: nil)
+        let session = URLSession(configuration: T.configuration, delegate: URLSessionDelegateClass(), delegateQueue: nil)
         #else
-        let session = URLSession(configuration: URLSessionConfiguration.default, delegate:nil, delegateQueue: nil)
+        let session = URLSession(configuration: T.configuration, delegate:nil, delegateQueue: nil)
         #endif
         
         let semaphore = DispatchSemaphore(value: 0)

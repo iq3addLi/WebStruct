@@ -19,7 +19,6 @@ extension DummyStruct : WebInitializable {
     typealias errorType = ApplicationError
 
     static var path = "http://localhost:8080/dummy"
-    static var timeout = 3.0
     
     init (fromJson:Any) throws{
         guard case let json as [String:Any] = fromJson
@@ -41,11 +40,34 @@ extension ErrorStruct : WebInitializable {
     typealias errorType = ApplicationError
 
     static var path = "http://localhost:8080/error"
-    static var timeout = 3.0
     
     init (fromJson:Any) throws{
         // error intentionally
         throw ParseError(code: 0, reason: "")
+    }
+}
+
+
+
+struct CustomStruct {
+    
+}
+
+extension CustomStruct : WebInitializable {
+    typealias inputType = TestParam
+    typealias errorType = ApplicationError
+    
+    static var path = "http://localhost:8080/timeout"
+    
+    static var timeout:TimeInterval = 3
+    static var configuration:URLSessionConfiguration {
+        let def = URLSessionConfiguration.default
+        def.allowsCellularAccess = false
+        return def
+    }
+    
+    init (fromJson:Any) throws{
+        
     }
 }
 
