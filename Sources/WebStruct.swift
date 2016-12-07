@@ -18,7 +18,7 @@ public indirect enum Error : Swift.Error{
 }
 
 public protocol WebSerializable{
-    init (fromJson:Any) throws
+    init (fromJson json:Any) throws
 }
 
 public protocol WebInitializable : WebSerializable {

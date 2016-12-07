@@ -20,11 +20,11 @@ extension DummyStruct : WebInitializable {
 
     static var path = "http://localhost:8080/dummy"
     
-    init (fromJson:Any) throws{
-        guard case let json as [String:Any] = fromJson
+    init (fromJson json:Any) throws{
+        guard case let dic as [String:Any] = json
             else { throw ParseError(code: -1, reason: "not dictionary") }
         
-        guard case let message as String = json["message"]
+        guard case let message as String = dic["message"]
             else { throw ParseError(code: -1, reason: "message not found.") }
         
         self.message = message
@@ -41,7 +41,7 @@ extension ErrorStruct : WebInitializable {
 
     static var path = "http://localhost:8080/error"
     
-    init (fromJson:Any) throws{
+    init (fromJson json:Any) throws{
         // error intentionally
         throw ParseError(code: 0, reason: "")
     }
@@ -59,14 +59,14 @@ extension CustomStruct : WebInitializable {
     
     static var path = "http://localhost:8080/timeout"
     
-    static var timeout:TimeInterval = 3
+    static var timeout = 3
     static var configuration:URLSessionConfiguration {
         let def = URLSessionConfiguration.default
         def.allowsCellularAccess = false
         return def
     }
     
-    init (fromJson:Any) throws{
+    init (fromJson json:Any) throws{
         
     }
 }
@@ -94,8 +94,8 @@ struct ApplicationError : Swift.Error{
 
 
 extension ApplicationError : WebSerializable{
-    init (fromJson:Any) throws{
-        guard case let dic as [String:Any] = fromJson
+    init (fromJson json:Any) throws{
+        guard case let dic as [String:Any] = json
             else{ throw ParseError(code: 0, reason: "") }
         
         guard case let error as [String:Any] = dic["error"]
