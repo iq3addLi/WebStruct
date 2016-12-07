@@ -21,6 +21,10 @@ public protocol WebSerializable{
     init (fromJson json:Any) throws
 }
 
+public protocol WebDeserializable {
+    func toJsonData() -> Any
+}
+
 public protocol WebInitializable : WebSerializable {
     associatedtype inputType: WebDeserializable
     associatedtype errorType: WebSerializable
@@ -32,7 +36,7 @@ public protocol WebInitializable : WebSerializable {
 
 extension WebInitializable{
     public init(_ param:Self.inputType) throws {
-        self = try Structer<Self,Self.errorType>().get( param )
+        self = try WebStruct<Self,Self.errorType>().get( param )
     }
 
     // default values
@@ -40,16 +44,11 @@ extension WebInitializable{
     static public var configuration:URLSessionConfiguration { return URLSessionConfiguration.default }
 }
 
-public protocol WebDeserializable {
-    func toJsonData() -> Any
-}
-
-
-public struct Structer <T:WebInitializable,ERR:WebSerializable>{
+fileprivate struct WebStruct <T:WebInitializable,ERR:WebSerializable>{
     
-    public init(){}
+    fileprivate init(){}
     
-    public func get<P:WebDeserializable>(_ param:P) throws -> T {
+    fileprivate func get<P:WebDeserializable>(_ param:P) throws -> T {
         
         guard let url = URL(string: T.path )
             else{ fatalError() }
@@ -110,7 +109,7 @@ public struct Structer <T:WebInitializable,ERR:WebSerializable>{
 
 // Passed self certificate 
 #if os(macOS) || os(iOS)
-class URLSessionDelegateClass : NSObject, URLSessionDelegate{
+fileprivate class URLSessionDelegateClass : NSObject, URLSessionDelegate{
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void){
         
 
