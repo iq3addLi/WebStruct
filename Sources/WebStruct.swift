@@ -31,11 +31,12 @@ public protocol WebInitializable : WebSerializable {
 }
 
 extension WebInitializable{
-    static public func get(_ param:Self.inputType) throws -> Self{
-        return try Structer<Self,Self.errorType>().get( param )
+    public init(_ param:Self.inputType) throws {
+        self = try Structer<Self,Self.errorType>().get( param )
     }
-    // default value
-    static public var timeout:TimeInterval { return 5.0 } // Dup URLSessionConfiguration.timeoutIntervalForRequest ?
+
+    // default values
+    static public var timeout:TimeInterval { return 5.0 }
     static public var configuration:URLSessionConfiguration { return URLSessionConfiguration.default }
 }
 
@@ -107,7 +108,7 @@ public struct Structer <T:WebInitializable,ERR:WebSerializable>{
 }
 
 
-// 自己証明書回避
+// Passed self certificate 
 #if os(macOS) || os(iOS)
 class URLSessionDelegateClass : NSObject, URLSessionDelegate{
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void){

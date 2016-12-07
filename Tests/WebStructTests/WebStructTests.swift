@@ -21,7 +21,7 @@ class WebStructTests: XCTestCase {
     
     func testInitalize() {
     
-        let dummy = try? DummyStruct.get( TestParam(param: "hoge") )
+        let dummy = try? DummyStruct( TestParam(param: "hoge") )
         
         XCTAssert(dummy != nil,"test is nil.")
         //XCTAssert(test! is DummyStruct,"test is not DummyStruct.")
@@ -29,7 +29,7 @@ class WebStructTests: XCTestCase {
     
     func testInitalizeError(){
         do{
-            let _ = try ErrorStruct.get( TestParam(param: "hoge") )
+            let _ = try ErrorStruct( TestParam(param: "hoge") )
         }catch let error as WebStruct.Error{
             if case .application(let e) = error{
                 XCTAssert( e is ApplicationError, "Error serialize fail.")
@@ -43,7 +43,7 @@ class WebStructTests: XCTestCase {
     
     func testCustomize(){
         do{
-            let _ = try CustomStruct.get( TestParam(param: "hoge") )
+            let _ = try CustomStruct( TestParam(param: "hoge") )
         }catch let error as WebStruct.Error{
             if case .network(let e) = error{
                 if case let nserror as NSError = e,

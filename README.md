@@ -89,7 +89,7 @@ extension ApplicationError : WebSerializable{
 ## Struct Initialize
 
 ```Swift
-let dummy = try? DummyStruct.get( TestParam(param: "hoge") )
+let dummy = try? DummyStruct( TestParam(param: "hoge") )
 ```
 
 # Customize
