@@ -69,7 +69,7 @@ struct ApplicationError : Swift.Error{
 
 extension ApplicationError : WebSerializable{
     init (fromJson json:Any) throws{
-        guard case let dic as [String:Any] = fromJson
+        guard case let dic as [String:Any] = json
             else{ throw ParseError(code: 0, reason: "") }
         
         guard case let error as [String:Any] = dic["error"]
@@ -116,5 +116,4 @@ extension CustomStruct : WebInitializable {
 ```
 # known Issues
 * Using this library on Linux will fail to pass memory between threads. The contents of optional will be destroyed and segmentation fault will occur. Because no stack trace is displayed, it is not possible to judge what happened at first glance.
-* As a workaround, we are considering replacing it with a network library that can handle synchronization other than URLSession. On Linux, URLSession is not very good because correspondence of HTTPS is also insufficient.🐷
-
+* As a workaround, we are considering replacing it with a network library that can handle synchronization other than URLSession. 
