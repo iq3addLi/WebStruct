@@ -8,9 +8,6 @@ It can be used only when the following conditions are satisfied.
 * When I was prepared to be unable to use a kind JSON Parser.😰
 * If you want to process asynchronously, use GCD.😇
 
-```
-⚠️ Do not use this library yet on Linux. See known Issues.
-```
 
 # Usage
 
@@ -115,5 +112,5 @@ extension CustomStruct : WebInitializable {
 }
 ```
 # known Issues
-* Using this library on Linux will fail to pass memory between threads. The contents of optional will be destroyed and segmentation fault will occur. Because no stack trace is displayed, it is not possible to judge what happened at first glance.
-* As a workaround, we are considering replacing it with a network library that can handle synchronization other than URLSession. 
+* There was a problem that a segmentation fault occurred when used with Ubuntu.
+* I looked up this problem is solved on DEVELOPMENT-SNAPSHOT-2017-02-09-a.
