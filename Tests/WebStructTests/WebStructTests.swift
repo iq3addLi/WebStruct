@@ -2,13 +2,16 @@
 //  WebStructTests.swift
 //  WebStructTests
 //
-//  Created by Arakane Ikumi on 2016/08/24.
+//  Created by iq3 on 2016/08/24.
 //  Copyright © 2016年 addli.co.jp. All rights reserved.
 //
 
 import XCTest
 @testable import WebStruct
 
+/**
+ This UnitTest is need WebStrcutTestServer(https://github.com/iq3addLi/WebStructTestServer.git) running.
+ */
 class WebStructTests: XCTestCase {
     
     override func setUp() {
@@ -19,18 +22,16 @@ class WebStructTests: XCTestCase {
         super.tearDown()
     }
     
-    func testInitalize() {
-    
-        let dummy = try? DummyStruct( TestParam(param: "hoge") )
-        
-        XCTAssert(dummy != nil,"test is nil.")
-        //XCTAssert(test! is DummyStruct,"test is not DummyStruct.")
+    func testBasicInitalize() {
+        let basic = try? BasicStruct( TestParam(param: "hello") )
+        XCTAssert(basic != nil,"test is nil.")
     }
     
     func testInitalizeError(){
         do{
-            let _ = try ErrorStruct( TestParam(param: "hoge") )
-        }catch let error as WebStruct.Error{
+            let _ = try ErrorStruct( TestParam(param: "hello") )
+        }
+        catch let error as WebStruct.Error{
             if case .application(let e) = error{
                 XCTAssert( e is ApplicationError, "Error serialize fail.")
                 return
@@ -41,10 +42,11 @@ class WebStructTests: XCTestCase {
         XCTAssert(false,"invalid error.")
     }
     
-    func testCustomize(){
+    func testCustomProperty(){
         do{
-            let _ = try CustomStruct( TestParam(param: "hoge") )
-        }catch let error as WebStruct.Error{
+            let _ = try CustomStruct( TestParam(param: "hello") )
+        }
+        catch let error as WebStruct.Error{
             if case .network(let e) = error{
                 if case let nserror as NSError = e,
                     nserror.userInfo["NSLocalizedDescription"] as! String == "The request timed out."{
@@ -56,9 +58,19 @@ class WebStructTests: XCTestCase {
         
         XCTAssert(false,"invalid error.")
     }
-//    func testPerformanceExample() {
-//        self.measureBlock {
-//        }
-//    }
     
+    func testCustomHttpHeaders(){
+        let st:CustomHeadersStruct
+        do{
+            st = try CustomHeadersStruct( TestParam( param: "hello") )
+        }
+        catch let error as WebStruct.Error{
+            XCTAssert(false,"Test failed. detail=\(error)");return
+        }
+        catch {
+            XCTAssert(false,"Test failed.");return
+        }
+        
+        XCTAssertEqual( st.headers["hello"] , "world" )
+    }
 }

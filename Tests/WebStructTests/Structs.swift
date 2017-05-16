@@ -10,27 +10,29 @@ import Foundation
 
 @testable import WebStruct
 
-struct DummyStruct {
+// Basic pattern
+struct BasicStruct {
     let message:String
 }
 
-extension DummyStruct : WebInitializable {
+extension BasicStruct : WebInitializable {
     typealias inputType = TestParam
     typealias errorType = ApplicationError
 
-    static var path = "http://localhost:8080/dummy"
+    static var path = "http://localhost:8080/basic"
     
     init (fromJson json:Any) throws{
         guard case let dic as [String:Any] = json
-            else { throw ParseError(code: -1, reason: "not dictionary") }
+            else { throw ParseError(code: -1, reason: "Return body is not a dictionary.") }
         
         guard case let message as String = dic["message"]
-            else { throw ParseError(code: -1, reason: "message not found.") }
+            else { throw ParseError(code: -1, reason: "Message is not found.") }
         
         self.message = message
     }
 }
 
+// Abnormal pattern
 struct ErrorStruct {
     
 }
@@ -48,7 +50,7 @@ extension ErrorStruct : WebInitializable {
 }
 
 
-
+// Added custom property
 struct CustomStruct {
     
 }
@@ -72,6 +74,35 @@ extension CustomStruct : WebInitializable {
 }
 
 
+// Added custom http header
+struct CustomHeadersStruct {
+    let headers:[String:String]
+}
+
+extension CustomHeadersStruct : WebInitializable {
+    typealias inputType = TestParam
+    typealias errorType = ApplicationError
+    
+    static var path  = "http://localhost:8080/headers"
+    static var method = "OPTIONS"
+    static var headers = [
+        "hello" : "world"
+    ]
+    
+    init (fromJson json:Any) throws{
+        
+        guard case let dic as [String:Any] = json
+            else { throw ParseError(code: -1, reason: "Return body is not a dictionary.") }
+        
+        guard case let headers as [String:String] = dic["YourHTTPHeader"]
+            else { throw ParseError(code: -1, reason: "YourHTTPHeader is not found.") }
+        
+        self.headers = headers
+    }
+}
+
+
+// Posting value
 struct TestParam {
     let param:String
 }
@@ -82,6 +113,8 @@ extension TestParam : WebDeserializable {
     }
 }
 
+
+// Error type
 struct ParseError : Swift.Error{
     let code:Int
     let reason:String

@@ -15,22 +15,23 @@ It can be used only when the following conditions are satisfied.
 
 
 ```Swift
-struct DummyStruct {
+// Basic pattern
+struct BasicStruct {
     let message:String
 }
 
-extension DummyStruct : WebInitializable {
+extension BasicStruct : WebInitializable {
     typealias inputType = TestParam
     typealias errorType = ApplicationError
 
-    static var path = "http://localhost:8080/dummy"
+    static var path = "http://localhost:8080/basic"
     
     init (fromJson json:Any) throws{
         guard case let dic as [String:Any] = json
-            else { throw ParseError(code: -1, reason: "not dictionary") }
+            else { throw ParseError(code: -1, reason: "Return body is not a dictionary.") }
         
         guard case let message as String = dic["message"]
-            else { throw ParseError(code: -1, reason: "message not found.") }
+            else { throw ParseError(code: -1, reason: "Message is not found.") }
         
         self.message = message
     }
@@ -86,31 +87,53 @@ extension ApplicationError : WebSerializable{
 ## Struct Initialize
 
 ```Swift
-let dummy = try? DummyStruct( TestParam(param: "hoge") )
+let basic = try? BasicStruct( TestParam(param: "hoge") )
 ```
 
 # Customize
 
 You can customize the behavior by implementing timeout and configuration.
 
+## Want to extend the timeout
 ```Swift
 extension CustomStruct : WebInitializable {
-    typealias inputType = TestParam
-    typealias errorType = ApplicationError
-    
-    static var path    = "http://localhost:8080/timeout"
+    ...
     static var timeout = 10
-    static var configuration:URLSessionConfiguration {
-        let def = URLSessionConfiguration.default
-        def.allowsCelluarAccess = false
-        return def
-    }
-    
-    init (fromJson json:Any) throws{
-        
-    }
+    ...
 }
 ```
+
+## Want to custom URLSessionConfiguration
+```Swift
+extension CustomStruct : WebInitializable {
+    ...
+    static var configuration:URLSessionConfiguration {
+        let def = URLSessionConfiguration.default
+        def.allowsCelluarAccess = false // celluar access disabled 
+        return def
+    }
+    ...
+}
+```
+## Want to change HTTP method
+```Swift
+extension CustomStruct : WebInitializable {
+    ...
+    static var method = "OPTIONS"
+    ...
+}
+```
+## Want to add HTTP headers
+```Swift
+extension CustomStruct : WebInitializable {
+    ...
+    static var headers = [
+        "hello" : "world"
+    ]
+    ...
+}
+```
+
 # known Issues
 * There was a problem that a segmentation fault occurred when used with Ubuntu.
 * I looked up this problem is solved on DEVELOPMENT-SNAPSHOT-2017-02-09-a.
