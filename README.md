@@ -1,5 +1,5 @@
 # WebStruct
-[![CocoaPods compatible](https://img.shields.io/badge/pod(central free)-compatible-blue.svg)](#)
+[![CocoaPods compatible](https://img.shields.io/badge/pod<central free>-compatible-blue.svg)](#)
 [![SwiftPM compatible](https://img.shields.io/badge/SwiftPM-compatible-orange.svg)](#)
 [![GitHub release](https://img.shields.io/github/release/iq3AddLi/WebStruct.svg)](https://github.com/iq3AddLi/WebStruct/releases)
 ![Swift 3.1](https://img.shields.io/badge/Swift-3.1-orange.svg)
