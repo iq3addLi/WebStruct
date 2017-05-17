@@ -1,9 +1,0 @@
-machine:
-    timezone:
-        Asia/Tokyo
-
-test:
-    override:
-        - swift build
-        - swift build -c release
-        - swift test -s WebStructTests.OpenWebAPITests
