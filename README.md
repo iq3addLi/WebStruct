@@ -9,9 +9,9 @@ This library is initalize Swift struct from Web API.
 It is made of very proper and lazy.
 It can be used only when the following conditions are satisfied.
 
-* When request format is JSON.😞
-* When API response format is JSON.😥
-* When I was prepared to be unable to use a kind JSON Parser.😰
+* ~~When request format is JSON~~ .
+* ~~When API response format is JSON~~ .
+* ~~When I was prepared to be unable to use a kind JSON Parser~~.
 * If you want to process asynchronously, use GCD.😇
 
 
@@ -27,13 +27,13 @@ struct BasicStruct {
 }
 
 extension BasicStruct : WebInitializable {
-    typealias inputType = TestParam
+    typealias inputType = RequestStruct
     typealias errorType = ApplicationError
 
     static var path = "http://localhost:8080/basic"
     
-    init (fromJson json:Any) throws{
-        guard case let dic as [String:Any] = json
+    init (fromObject object:Any) throws{
+        guard case let dic as [String:Any] = object
             else { throw ParseError(code: -1, reason: "Return body is not a dictionary.") }
         
         guard case let message as String = dic["message"]
@@ -47,13 +47,13 @@ extension BasicStruct : WebInitializable {
 ## Implement WebDeserializable of Struct for API Request
 
 ```Swift
-struct TestParam {
-    let param:String
+struct RequestStruct {
+    let value:String
 }
 
-extension TestParam : WebDeserializable {
-    func toJsonData() -> Any{
-        return [ "param" : param ]
+extension RequestStruct : WebDeserializable {
+    func toObject() -> Any{
+        return [ "key" : value ]
     }
 }
 ```
@@ -61,6 +61,7 @@ extension TestParam : WebDeserializable {
 ## Implement Parse Error & API Error
 
 ```Swift
+// Error type
 struct ParseError : Swift.Error{
     let code:Int
     let reason:String
@@ -71,9 +72,10 @@ struct ApplicationError : Swift.Error{
     let reason:String
 }
 
+
 extension ApplicationError : WebSerializable{
-    init (fromJson json:Any) throws{
-        guard case let dic as [String:Any] = json
+    init (fromObject object:Any) throws{
+        guard case let dic as [String:Any] = object
             else{ throw ParseError(code: 0, reason: "") }
         
         guard case let error as [String:Any] = dic["error"]
@@ -93,49 +95,67 @@ extension ApplicationError : WebSerializable{
 ## Struct Initialize
 
 ```Swift
-let basic = try? BasicStruct( TestParam(param: "hoge") )
+let basic = try? BasicStruct( RequestStruct(value: "hello") )
 ```
-
-# Customize
-
-You can customize the behavior by implementing timeout and configuration.
-
-## Want to extend the timeout
+### Error Handled 
 ```Swift
-extension CustomStruct : WebInitializable {
-    ...
-    static var timeout = 10
-    ...
+do{
+    let _ = try ErrorStruct( RequestStruct(value: "hello") )
+}
+catch let error as WebStruct.Error{
+    switch (error) {
+    case .network(let _):
+        // Network error
+        XCTAssert( false,"Unexpected error.")
+    case .http(let _):
+        // HTTP error
+        XCTAssert( false,"Unexpected error.")
+    case .ignoreData:
+        // Unexpected response data
+        XCTAssert( false,"Unexpected error.")
+    case .parse(let _):
+        // Failed parse response data
+        XCTAssert( false,"Unexpected error.")
+    case .application(let e):
+        // Server side defined error
+        XCTAssert( e is ApplicationError, "ApplicationError serialize is fail")
+    }
+}
+catch {
+    // Unexpected throws
+    XCTAssert( false,"Unexpected error.")
 }
 ```
 
-## Want to custom URLSessionConfiguration
+# Customize
+You can customize the behavior by implementing request and session.
+
+## Customize request
 ```Swift
-extension CustomStruct : WebInitializable {
+// TimeoutInterval extended
+extension CustomRequestStruct : WebInitializable {
     ...
-    static var configuration:URLSessionConfiguration {
-        let def = URLSessionConfiguration.default
-        def.allowsCelluarAccess = false // celluar access disabled 
-        return def
+	static var request:URLRequest {
+        guard let url = URL(string: CustomRequestStruct.path ) else{ fatalError() }
+        var request = URLRequest(url:url, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:10.0 )
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField:"Content-Type")
+        return request
     }
     ...
 }
 ```
-## Want to change HTTP method
+
+## Customize session
 ```Swift
-extension CustomStruct : WebInitializable {
+// Cellular access disabled
+extension CustomSessionStruct : WebInitializable {
     ...
-    static var method = "OPTIONS"
-    ...
-}
-```
-## Want to add HTTP headers
-```Swift
-extension CustomStruct : WebInitializable {
-    ...
-    static var headers = [
-        "hello" : "world"
-    ]
+    static var session:URLSession {
+        let def = URLSessionConfiguration.default
+        def.allowsCellularAccess = false
+        return URLSession(configuration: def, delegate: nil, delegateQueue: nil)
+    }
     ...
 }
 ```

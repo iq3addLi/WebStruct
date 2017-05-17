@@ -21,23 +21,43 @@ public indirect enum Error : Swift.Error{
 }
 
 /**
-    Json serializeable protocol
+    Serializeable protocol
  */
 public protocol WebSerializable{
     // Must implement
-    init (fromJson json:Any) throws
+    init (fromObject object:Any) throws
+    
+    // Optional
+    static func serialize(data:Data) throws -> Any
+}
+
+extension WebSerializable{
+    // default implements
+    static func serialize(data:Data) throws -> Any {
+        return try JSONSerialization.jsonObject(with: data, options:JSONSerialization.ReadingOptions())
+    }
 }
 
 /**
-    Json deserializeable protocol
+    Deserializeable protocol
  */
 public protocol WebDeserializable {
     // Must implement
-    func toJsonData() -> Any
+    func toObject() -> Any
+    
+    // Optional
+    func deserialize() throws -> Data
+}
+
+extension WebDeserializable{
+    // default implements
+    func deserialize() throws -> Data {
+        return try JSONSerialization.data(withJSONObject: self.toObject(), options: JSONSerialization.WritingOptions())
+    }
 }
 
 /**
-    Json initializable protocol
+    Initializable protocol
  */
 public protocol WebInitializable : WebSerializable {
     associatedtype inputType: WebDeserializable
@@ -47,11 +67,8 @@ public protocol WebInitializable : WebSerializable {
     static var path:String { get }
     
     // Optional
-    static var method:String { get }
-    static var headers:[String:String] { get }
-    static var timeout:TimeInterval { get }
-    static var configuration:URLSessionConfiguration { get }
-    static var urlsessionDelegate:URLSessionDelegate? { get }
+    static var request:URLRequest { get }
+    static var session:URLSession { get }
 }
 
 /**
@@ -63,11 +80,17 @@ extension WebInitializable{
     }
 
     // default values
-    static public var method:String { return "POST" }
-    static public var headers:[String:String] { return [:] }
-    static public var timeout:TimeInterval { return 5.0 }
-    static public var configuration:URLSessionConfiguration { return URLSessionConfiguration.default }
-    static public var urlsessionDelegate:URLSessionDelegate? { return nil }
+    static public var request:URLRequest {
+        guard let url = URL(string: Self.path ) else{ fatalError() }
+        var request = URLRequest(url:url, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:5.0 )
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField:"Content-Type")
+        return request
+    }
+    
+    static public var session:URLSession {
+        return URLSession(configuration: URLSessionConfiguration.default, delegate: nil, delegateQueue: nil)
+    }
 }
 
 /**
@@ -80,20 +103,14 @@ fileprivate struct WebStruct <T:WebInitializable,ERR:WebSerializable>{
     fileprivate func get<P:WebDeserializable>(_ param:P) throws -> T {
         
         // verify for request
-        guard let url = URL(string: T.path ) else{ fatalError() }
-        guard let body = try? JSONSerialization.data(withJSONObject: param.toJsonData(), options: JSONSerialization.WritingOptions()) else{ fatalError() }
+        guard let body = try? param.deserialize() else{ fatalError() }
         
         // setup for request
-        var request = URLRequest(url:url, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:T.timeout)
-        request.httpMethod = T.method
-        request.addValue("application/json", forHTTPHeaderField:"Content-Type")
-        for (key,value) in T.headers {
-            request.addValue( value, forHTTPHeaderField: key )
-        }
+        var request = T.request
         request.httpBody = body
         
         // send request
-        let session = URLSession(configuration: T.configuration, delegate: T.urlsessionDelegate, delegateQueue: nil)
+        let session = T.session
         let semaphore = DispatchSemaphore(value: 0)
         var data:Data?,response:URLResponse?,error:Swift.Error?
         let subtask = session.dataTask(with: request) { (d, r, e) in
@@ -116,23 +133,20 @@ fileprivate struct WebStruct <T:WebInitializable,ERR:WebSerializable>{
         }
         
         // parse
-        guard let someData = data,
-            let jsonDic = try? JSONSerialization.jsonObject(with: someData, options:JSONSerialization.ReadingOptions())
+        guard let someData = data, let object = try? T.serialize( data:someData )
             else { throw Error.ignoreData }
         
-        let gen:T
+        let newStruct:T
         do{
-            gen = try T( fromJson:jsonDic )
+            newStruct = try T( fromObject:object )
         }
-        catch(let initError){
-            guard let err = try? ERR( fromJson:jsonDic )
-                else{ throw Error.parse(initError) }
-            
-            throw Error.application(err)
+        catch(let error){
+            guard let appError = try? ERR( fromObject:object ) else{ throw Error.parse(error) }
+            throw Error.application(appError)
         }
         
         // complete
-        return gen
+        return newStruct
     }
 }
 

@@ -16,13 +16,13 @@ struct BasicStruct {
 }
 
 extension BasicStruct : WebInitializable {
-    typealias inputType = TestParam
+    typealias inputType = RequestStruct
     typealias errorType = ApplicationError
 
     static var path = "http://localhost:8080/basic"
     
-    init (fromJson json:Any) throws{
-        guard case let dic as [String:Any] = json
+    init (fromObject object:Any) throws{
+        guard case let dic as [String:Any] = object
             else { throw ParseError(code: -1, reason: "Return body is not a dictionary.") }
         
         guard case let message as String = dic["message"]
@@ -38,37 +38,60 @@ struct ErrorStruct {
 }
 
 extension ErrorStruct : WebInitializable {
-    typealias inputType = TestParam
+    typealias inputType = RequestStruct
     typealias errorType = ApplicationError
 
     static var path = "http://localhost:8080/error"
     
-    init (fromJson json:Any) throws{
+    init (fromObject object:Any) throws{
         // error intentionally
         throw ParseError(code: 0, reason: "")
     }
 }
 
 
-// Added custom property
-struct CustomStruct {
+// Added custom request
+struct CustomRequestStruct {
     
 }
 
-extension CustomStruct : WebInitializable {
-    typealias inputType = TestParam
+extension CustomRequestStruct : WebInitializable {
+    typealias inputType = RequestStruct
     typealias errorType = ApplicationError
     
     static var path = "http://localhost:8080/timeout"
     
-    static var timeout = 3
-    static var configuration:URLSessionConfiguration {
-        let def = URLSessionConfiguration.default
-        def.allowsCellularAccess = false
-        return def
+    static var request:URLRequest {
+        guard let url = URL(string: CustomRequestStruct.path ) else{ fatalError() }
+        var request = URLRequest(url:url, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:3.0 )
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField:"Content-Type")
+        return request
     }
     
-    init (fromJson json:Any) throws{
+    init (fromObject object:Any) throws{
+        
+    }
+}
+
+// Added custom Session
+struct CustomSessionStruct {
+    
+}
+
+extension CustomSessionStruct : WebInitializable {
+    typealias inputType = RequestStruct
+    typealias errorType = ApplicationError
+    
+    static var path  = "http://localhost:8080/session"
+    
+    static var session:URLSession {
+        let def = URLSessionConfiguration.default
+        def.allowsCellularAccess = false
+        return URLSession(configuration: def, delegate: nil, delegateQueue: nil)
+    }
+    
+    init (fromObject object:Any) throws{
         
     }
 }
@@ -80,18 +103,30 @@ struct CustomHeadersStruct {
 }
 
 extension CustomHeadersStruct : WebInitializable {
-    typealias inputType = TestParam
+    typealias inputType = RequestStruct
     typealias errorType = ApplicationError
     
     static var path  = "http://localhost:8080/headers"
-    static var method = "OPTIONS"
-    static var headers = [
-        "hello" : "world"
-    ]
     
-    init (fromJson json:Any) throws{
+    static var request:URLRequest {
+        guard let url = URL(string: CustomHeadersStruct.path ) else{ fatalError() }
+        var request = URLRequest(url:url, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:3.0 )
+        request.httpMethod = "OPTIONS"
         
-        guard case let dic as [String:Any] = json
+        let headers = [
+            "Content-Type" : "application/json",
+            "hello" : "world"
+        ]
+        for (key,value) in headers{
+            request.addValue( value, forHTTPHeaderField:key)
+        }
+        
+        return request
+    }
+    
+    init (fromObject object:Any) throws{
+        
+        guard case let dic as [String:Any] = object
             else { throw ParseError(code: -1, reason: "Return body is not a dictionary.") }
         
         guard case let headers as [String:String] = dic["YourHTTPHeader"]
@@ -101,15 +136,14 @@ extension CustomHeadersStruct : WebInitializable {
     }
 }
 
-
 // Posting value
-struct TestParam {
-    let param:String
+struct RequestStruct {
+    let value:String
 }
 
-extension TestParam : WebDeserializable {
-    func toJsonData() -> Any{
-        return [ "param" : param ]
+extension RequestStruct : WebDeserializable {
+    func toObject() -> Any{
+        return [ "key" : value ]
     }
 }
 
@@ -127,8 +161,8 @@ struct ApplicationError : Swift.Error{
 
 
 extension ApplicationError : WebSerializable{
-    init (fromJson json:Any) throws{
-        guard case let dic as [String:Any] = json
+    init (fromObject object:Any) throws{
+        guard case let dic as [String:Any] = object
             else{ throw ParseError(code: 0, reason: "") }
         
         guard case let error as [String:Any] = dic["error"]
