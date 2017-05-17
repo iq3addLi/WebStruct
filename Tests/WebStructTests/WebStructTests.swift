@@ -14,6 +14,13 @@ import XCTest
  */
 class WebStructTests: XCTestCase {
     
+    static let allTests = [
+        ("testBasicInitalize", testBasicInitalize),
+        ("testInitializationFailedServersideError",testInitializationFailedServersideError),
+        ("testInitializationFailedDueToTimeout", testInitializationFailedDueToTimeout),
+        ("testCustomHttpHeaders", testCustomHttpHeaders)
+    ]
+    
     override func setUp() {
         super.setUp()
     }

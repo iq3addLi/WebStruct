@@ -13,6 +13,11 @@ import XCTest
 
 class OpenWebAPITests: XCTestCase {
     
+    static let allTests = [
+        ("testItunesSearch", testItunesSearch),
+        ("testItunesSearchTimeout",testItunesSearchTimeout)
+    ]
+    
     override func setUp() {
         super.setUp()
     }
