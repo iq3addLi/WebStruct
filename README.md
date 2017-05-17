@@ -1,9 +1,12 @@
 # WebStruct
 [![GitHub release](https://img.shields.io/github/release/iq3AddLi/WebStruct.svg)](https://github.com/iq3AddLi/WebStruct/releases)
+[![CircleCI](https://circleci.com/gh/iq3addLi/WebStruct/tree/master.svg?style=shield)](https://circleci.com/gh/iq3addLi/WebStruct/tree/master)
 [![CocoaPods compatible](https://img.shields.io/badge/pod_direct_only-compatible-blue.svg)](#)
 [![SwiftPM compatible](https://img.shields.io/badge/SwiftPM-compatible-orange.svg)](#)
 ![Swift 3.1](https://img.shields.io/badge/Swift-3.1-orange.svg)
 ![platforms](https://img.shields.io/badge/platform-iOS%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
+
+
 
 This library is initalize Swift struct from Web API.
 It is made of very proper and lazy.
