@@ -1,9 +1,6 @@
-machine:
-    timezone:
-        Asia/Tokyo
-
 dependencies:
     override:
+        - sudo apt-get -q update
         - sudo apt-get install swift
         - sudo chmod -R a+rx /usr/
 
