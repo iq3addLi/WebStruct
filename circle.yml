@@ -9,6 +9,6 @@ dependencies:
 
 test:
     override:
-        - swift build
-        - swift build -c release
-        - swift test -s WebStructTests.OpenWebAPITests
+        - /usr/bin/swift build
+        - /usr/bin/swift build -c release
+        - /usr/bin/swift test -s WebStructTests.OpenWebAPITests
