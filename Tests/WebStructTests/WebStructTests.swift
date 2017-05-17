@@ -27,22 +27,22 @@ class WebStructTests: XCTestCase {
         XCTAssert(basic != nil,"test is nil.")
     }
     
-    func testInitalizeError(){
+    func testInitializationFailedServersideError(){
         do{
             let _ = try ErrorStruct( RequestStruct(value: "hello") )
         }
         catch let error as WebStruct.Error{
             switch (error) {
-            case .network(let _):
+            case .network( _):
                 // Network error
                 XCTAssert( false,"Unexpected error.")
-            case .http(let _):
+            case .http( _):
                 // HTTP error
                 XCTAssert( false,"Unexpected error.")
             case .ignoreData:
                 // Unexpected response data
                 XCTAssert( false,"Unexpected error.")
-            case .parse(let _):
+            case .parse( _):
                 // Failed parse response data
                 XCTAssert( false,"Unexpected error.")
             case .application(let e):
@@ -56,7 +56,7 @@ class WebStructTests: XCTestCase {
         }
     }
     
-    func testCustomProperty(){
+    func testInitializationFailedDueToTimeout(){
         do{
             let _ = try CustomRequestStruct( RequestStruct(value: "hello") )
         }

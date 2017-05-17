@@ -2,7 +2,7 @@
 //  Structs.swift
 //  WebStruct
 //
-//  Created by Arakane Ikumi on 2016/08/24.
+//  Created by iq3 on 2016/08/24.
 //  Copyright © 2016年 addli.co.jp. All rights reserved.
 //
 
@@ -63,7 +63,7 @@ extension CustomRequestStruct : WebInitializable {
     
     static var request:URLRequest {
         guard let url = URL(string: CustomRequestStruct.path ) else{ fatalError() }
-        var request = URLRequest(url:url, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:3.0 )
+        var request = URLRequest(url:url, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:1.0 )
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField:"Content-Type")
         return request
