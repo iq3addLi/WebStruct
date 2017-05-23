@@ -1,11 +1,16 @@
-dependencies:
-    override:
-        - eval "$(curl -sL https://apt.vapor.sh)"
-        - sudo apt-get install swift
-        - sudo chmod -R a+rx /usr/
-
-test:
-    override:
-        - swift build
-        - swift build -c release
-        - swift test -s WebStructTests.OpenWebAPITests
+version: 2
+jobs:
+  build:
+    # working_directory can not use relative path. Workaround is using absolute path. https://circleci.com/docs/2.0/local-jobs/#relative-path-for-working_directory
+    working_directory: ~/WebStruct
+    docker:
+      - image: swift:3.1
+    steps:
+      - checkout
+      - run:
+          name: Run tests
+          command: |
+            swift package clean
+            swift build
+            swift build -c release
+            swift test -s WebStructTests.OpenWebAPITests
