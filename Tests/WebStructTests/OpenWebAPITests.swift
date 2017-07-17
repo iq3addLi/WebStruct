@@ -37,7 +37,6 @@ class OpenWebAPITests: XCTestCase {
             let _ = try iTunesTimeoutSearch( RequestStruct(value: "hello") )
         }
         catch let error as WebStruct.Error{
-            print("error=\(error)")
             if case .network(let e) = error{
                 if case let nserror as NSError = e,
                     nserror.userInfo["NSLocalizedDescription"] as! String == "The request timed out."{
