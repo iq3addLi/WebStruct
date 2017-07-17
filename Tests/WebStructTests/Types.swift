@@ -54,7 +54,7 @@ extension iTunesTimeoutSearch : WebInitializable {
     
     static var request:URLRequest {
         guard let url = URL(string: iTunesTimeoutSearch.path ) else{ fatalError() }
-        var request = URLRequest(url:url, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:0.0001 )
+        var request = URLRequest(url:url, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:0.001 )
         request.httpMethod = "GET"
         return request
     }

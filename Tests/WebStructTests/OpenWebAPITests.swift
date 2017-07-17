@@ -38,6 +38,8 @@ class OpenWebAPITests: XCTestCase {
         }
         catch let error as WebStruct.Error{
             if case .network(let e) = error{
+                
+                print("error=\(e)")
                 if case let nserror as NSError = e,
                     nserror.userInfo["NSLocalizedDescription"] as! String == "The request timed out."{
                     return // OK
