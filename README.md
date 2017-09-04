@@ -33,8 +33,6 @@ extension BasicStruct : WebInitializable {
     typealias inputType = RequestStruct
     typealias errorType = ApplicationError
 
-    static var path = "http://localhost:8080/basic"
-    
     init (fromObject object:Any) throws{
         guard case let dic as [String:Any] = object
             else { throw ParseError(code: -1, reason: "Return body is not a dictionary.") }
@@ -98,12 +96,12 @@ extension ApplicationError : WebSerializable{
 ## Struct Initialize
 
 ```Swift
-let basic = try? BasicStruct( RequestStruct(value: "hello") )
+let basic = try? BasicStruct( "http://localhost:8080/basic", param: RequestStruct(value: "hello") )
 ```
 ### Error Handled 
 ```Swift
 do{
-    let _ = try ErrorStruct( RequestStruct(value: "hello") )
+    let _ = try ErrorStruct( "http://localhost:8080/error", param:  RequestStruct(value: "hello") )
 }
 catch let error as WebStruct.Error{
     switch (error) {
@@ -177,7 +175,15 @@ swift package generate-xcodeproj
 ```
 
 ## Launch Test Server
+```
+open WebStructTestServer.xcodeproj
+```
 Build & Run "TestServer" Target in Xcode.
+
+or
+```
+.build/debug/TestServer
+```
 
 ## Run UnitTest for WebStruct
 Command & U
