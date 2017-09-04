@@ -63,9 +63,6 @@ public protocol WebInitializable : WebSerializable {
     associatedtype inputType: WebDeserializable
     associatedtype errorType: WebSerializable
     
-    // Must implement
-    static var path:String { get }
-    
     // Optional
     static var request:URLRequest { get }
     static var session:URLSession { get }
@@ -75,16 +72,13 @@ public protocol WebInitializable : WebSerializable {
   Default implement for WebInitializable
  */
 extension WebInitializable{
-    public init(_ param:Self.inputType) throws {
-        self = try WebStruct<Self,Self.errorType>().get( param )
+    public init(_ path:String, param:Self.inputType? = nil) throws {
+        self = try WebStruct<Self,Self.errorType>().get( path, param: param )
     }
 
     // default values
     static public var request:URLRequest {
-        guard let url = URL(string: Self.path ) else{ fatalError() }
-        var request = URLRequest(url:url, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:5.0 )
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField:"Content-Type")
+        let request = URLRequest(url:URL(string:"http://")!, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:5.0 )
         return request
     }
     
@@ -100,14 +94,24 @@ fileprivate struct WebStruct <T:WebInitializable,ERR:WebSerializable>{
     
     fileprivate init(){}
     
-    fileprivate func get<P:WebDeserializable>(_ param:P) throws -> T {
-        
-        // verify for request
-        guard let body = try? param.deserialize() else{ fatalError() }
+    fileprivate func get<P:WebDeserializable>(_ path:String, param:P?) throws -> T {
         
         // setup for request
         var request = T.request
-        request.httpBody = body
+        
+        guard let url = URL(string: path ) else{ fatalError() }
+        request.url = url
+        
+        if let param = param {
+            // verify for request
+            guard let body = try? param.deserialize() else{ fatalError() }
+            request.httpBody = body
+            if let method = request.httpMethod,
+                method == "GET" { request.httpMethod = "POST" }
+            if request.value(forHTTPHeaderField: "Content-Type") == .none {
+                request.addValue("application/json", forHTTPHeaderField:"Content-Type")
+            }
+        }
         
         // send request
         let session = T.session

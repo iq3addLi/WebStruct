@@ -163,6 +163,26 @@ extension CustomSessionStruct : WebInitializable {
 }
 ```
 
+# Testing
+
+## Swift build in Server
+```
+cd Server
+swift build
+```
+
+## Generate Xcode project
+```
+swift package generate-xcodeproj
+```
+
+## Launch Test Server
+Build & Run "TestServer" Target in Xcode.
+
+## Run UnitTest for WebStruct
+Command & U
+
+
 # known Issues
 * There was a problem that a segmentation fault occurred when used with Ubuntu.
 * I looked up this problem is solved on DEVELOPMENT-SNAPSHOT-2017-02-09-a.

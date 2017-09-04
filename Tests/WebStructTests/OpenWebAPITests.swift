@@ -28,13 +28,17 @@ class OpenWebAPITests: XCTestCase {
     }
     
     func testItunesSearch() {
-        guard let search = try? iTunesSearch( RequestStruct(value: "hello") ) else { fatalError() }
+        guard let search = try? iTunesSearch(
+            "https://itunes.apple.com/search?term=twitter&media=software&entity=software&limit=10"
+        ) else { fatalError() }
         XCTAssertEqual( search.resultCount, 10 )
     }
     
     func testItunesSearchTimeout() {
         do{
-            let _ = try iTunesTimeoutSearch( RequestStruct(value: "hello") )
+            let _ = try iTunesTimeoutSearch(
+                "https://itunes.apple.com/search?term=twitter&media=software&entity=software&limit=10"
+            )
         }
         catch let error as WebStruct.Error{
             if case .network(let e) = error{
