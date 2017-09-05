@@ -20,6 +20,21 @@ public indirect enum Error : Swift.Error{
     case application(WebSerializable)
 }
 
+extension Error : CustomStringConvertible{
+    public var description: String {
+        get{
+            switch self{
+            case let .network(error):  return "Network error. detail=\(error)"
+            case let .http(error):     return "HTTP error. detail=\(error)"
+            case .ignoreData:      return "Received ignore data."
+            case let .parse(error):    return "Parse failed on received data. detail=\(error)"
+            case let .application(receivedError):
+                return "Server defined error. body=\(receivedError)"
+            }
+        }
+    }
+}
+
 /**
     Serializeable protocol
  */
