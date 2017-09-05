@@ -48,7 +48,7 @@ public protocol WebSerializable{
 
 extension WebSerializable{
     // default implements
-    static func serialize(data:Data) throws -> Any {
+    public static func serialize(data:Data) throws -> Any {
         return try JSONSerialization.jsonObject(with: data, options:JSONSerialization.ReadingOptions())
     }
 }
@@ -66,7 +66,7 @@ public protocol WebDeserializable {
 
 extension WebDeserializable{
     // default implements
-    func deserialize() throws -> Data {
+    public func deserialize() throws -> Data {
         return try JSONSerialization.data(withJSONObject: self.toObject(), options: JSONSerialization.WritingOptions())
     }
 }
@@ -92,12 +92,12 @@ extension WebInitializable{
     }
 
     // default values
-    static public var request:URLRequest {
+    public static var request:URLRequest {
         let request = URLRequest(url:URL(string:"http://")!, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval:5.0 )
         return request
     }
     
-    static public var session:URLSession {
+    public static var session:URLSession {
         return URLSession(configuration: URLSessionConfiguration.default, delegate: nil, delegateQueue: nil)
     }
 }
