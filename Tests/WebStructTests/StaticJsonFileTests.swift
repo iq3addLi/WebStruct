@@ -28,35 +28,27 @@ class StaticJsonFileTests: XCTestCase {
     }
     
     func testGetJSONFile() {
-        guard let file = try? PlacesFile(
-            "http://motorhomes.addli.jp/assets/json/places.json"
-            ) else { fatalError() }
-        XCTAssertEqual( file.places.count, 4 )
+        let file:[Place]
+        do{ file = try [Place]("http://motorhomes.addli.jp/assets/json/places.json") }catch{
+            print(error)
+            fatalError()
+        }
+        XCTAssertEqual( file.count, 4 )
     }
 }
 
-
-struct Place{
+struct Place : Decodable{
     let title:String
+    let type:String
+    let postalCode:String
+    let address:String
+    let tel:String
+    let url:URL
+    let location:[String:Double]
 }
 
-struct PlacesFile{
-    let places:[Place]
+extension Array : WebInitializable{
+    public typealias bodyType = RequestStruct
+    public typealias errorType = ApplicationError
 }
 
-extension PlacesFile : WebInitializable {
-    typealias inputType = RequestStruct
-    typealias errorType = ApplicationError
-    
-    init (fromObject object:Any) throws{
-        
-        guard case let array as [[String:Any]] = object
-            else { throw ParseError(code: -1, reason: "Return body is not array.") }
-        
-        self.places = try array.map({ place in
-            guard case let title as String = place["title"]
-                else{ throw ParseError(code: -1, reason: "The title not contain.") }
-            return Place( title: title )
-        })
-    }
-}

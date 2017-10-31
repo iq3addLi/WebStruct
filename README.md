@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/iq3addLi/WebStruct/tree/master.svg?style=shield)](https://circleci.com/gh/iq3addLi/WebStruct/tree/master)
 [![CocoaPods compatible](https://img.shields.io/badge/pod_direct_only-compatible-blue.svg)](#)
 [![SwiftPM compatible](https://img.shields.io/badge/SwiftPM-compatible-orange.svg)](#)
-![Swift 3.1](https://img.shields.io/badge/Swift-3.1-orange.svg)
+![Swift 4.0](https://img.shields.io/badge/Swift-4.0-orange.svg)
 ![platforms](https://img.shields.io/badge/platform-iOS%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
 
 
@@ -17,6 +17,7 @@ It can be used only when the following conditions are satisfied.
 * ~~When I was prepared to be unable to use a kind JSON Parser~~.
 * If you want to process asynchronously, use GCD.😇
 
+I used Codable from 0.7.0. No need for Any to Object processing.
 
 # Usage
 
@@ -25,101 +26,71 @@ It can be used only when the following conditions are satisfied.
 
 ```Swift
 // Basic pattern
-struct BasicStruct {
+public struct BasicStruct : Decodable{
     let message:String
 }
-
 extension BasicStruct : WebInitializable {
-    typealias inputType = RequestStruct
-    typealias errorType = ApplicationError
-
-    init (fromObject object:Any) throws{
-        guard case let dic as [String:Any] = object
-            else { throw ParseError(code: -1, reason: "Return body is not a dictionary.") }
-        
-        guard case let message as String = dic["message"]
-            else { throw ParseError(code: -1, reason: "Message is not found.") }
-        
-        self.message = message
-    }
+    public typealias bodyType = RequestStruct
+    public typealias errorType = ApplicationError
 }
 ```
 
 ## Implement WebDeserializable of Struct for API Request
 
 ```Swift
-struct RequestStruct {
+// Body struct
+public struct RequestStruct : Encodable{
     let value:String
 }
-
 extension RequestStruct : WebDeserializable {
-    func toObject() -> Any{
-        return [ "key" : value ]
-    }
 }
 ```
 
 ## Implement Parse Error & API Error
 
 ```Swift
-// Error type
-struct ParseError : Swift.Error{
+public struct ApplicationError : Swift.Error, Decodable{
     let code:Int
     let reason:String
 }
-
-struct ApplicationError : Swift.Error{
-    let code:Int
-    let reason:String
-}
-
-
 extension ApplicationError : WebSerializable{
-    init (fromObject object:Any) throws{
-        guard case let dic as [String:Any] = object
-            else{ throw ParseError(code: 0, reason: "") }
-        
-        guard case let error as [String:Any] = dic["error"]
-            else{ throw ParseError(code: 0, reason: "") }
-        
-        guard case let code as Int = error["code"]
-            else{ throw ParseError(code: 0, reason: "") }
-        self.code = code
-        
-        guard case let reason as String = error["reason"]
-            else{ throw ParseError(code: 0, reason: "") }
-        self.reason = reason
-    }
 }
 ```
 
 ## Struct Initialize
 
 ```Swift
-let basic = try? BasicStruct( "http://localhost:8080/basic", param: RequestStruct(value: "hello") )
+let basic = try? BasicStruct(
+    "http://localhost:8080/basic",
+    body: RequestStruct(value: "hello")
+)
 ```
+
 ### Error Handled 
 ```Swift
 do{
-    let _ = try ErrorStruct( "http://localhost:8080/error", param:  RequestStruct(value: "hello") )
+    let _ = try ErrorStruct(
+        "http://localhost:8080/error",
+        body: RequestStruct(value: "hello")
+    )
 }
 catch let error as WebStruct.Error{
     switch (error) {
-    case .network(let _):
+    case .network( _):
         // Network error
-        XCTAssert( false,"Unexpected error.")
-    case .http(let _):
+        XCTAssert( false,"Network error is unexpected.")
+    case .http( _):
         // HTTP error
-        XCTAssert( false,"Unexpected error.")
+        XCTAssert( false,"HTTP error is unexpected.")
     case .ignoreData:
         // Unexpected response data
-        XCTAssert( false,"Unexpected error.")
-    case .parse(let _):
+        XCTAssert( false,"IgnoreData error is unexpected.")
+    case .parse( _):
         // Failed parse response data
-        XCTAssert( false,"Unexpected error.")
+        XCTAssert( false,"Parse error is unexpected.")
     case .application(let e):
         // Server side defined error
-        XCTAssert( e is ApplicationError, "ApplicationError serialize is fail")
+        XCTAssert( e is ApplicationError, "Serialize for ApplicationError is fail.")
     }
 }
 catch {
@@ -166,7 +137,8 @@ extension CustomSessionStruct : WebInitializable {
 ## Swift build in Server
 ```
 cd Server
-swift build
+swift package clean
+swift package update
 ```
 
 ## Generate Xcode project
@@ -186,9 +158,9 @@ or
 ```
 
 ## Run UnitTest for WebStruct
-Command & U
+Command & U in WebStruct.xcodeproj
 
 
-# known Issues
+# Old Issues
 * There was a problem that a segmentation fault occurred when used with Ubuntu.
 * I looked up this problem is solved on DEVELOPMENT-SNAPSHOT-2017-02-09-a.

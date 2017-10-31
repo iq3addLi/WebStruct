@@ -1,9 +1,9 @@
+import Foundation
 import HTTP
 import JSON
 import Vapor
-import Foundation
 
-let app = Droplet()
+let app = try Droplet()
 
 app.post("/basic") { (request:HTTP.Request) in
     return JSON([ "message" : .string("hogehoge")])
@@ -27,7 +27,7 @@ app.options("/headers") { (request:HTTP.Request) -> ResponseRepresentable in
     for (key,value) in request.headers{
         ret[key.key] = .string(value)
     }
-    return JSON([ "YourHTTPHeader" : .object(ret)])
+    return JSON([ "headers" : .object(ret)])
 }
 
-app.run()
+try app.run()
