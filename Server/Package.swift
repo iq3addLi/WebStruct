@@ -8,6 +8,6 @@ let package = Package(
         Target(name: "TestServer" ),
     ],
     dependencies: [
-        .Package(url: "https://github.com/qutheory/vapor.git", Version(1,5,15))
+        .Package(url: "https://github.com/vapor/vapor.git", Version(2,3,0))
     ]
 )

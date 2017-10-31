@@ -32,7 +32,7 @@ class WebStructTests: XCTestCase {
     func testBasicInitalize() {
         let basic = try? BasicStruct(
             "http://localhost:8080/basic",
-            param: RequestStruct(value: "hello")
+            body: RequestStruct(value: "hello")
         )
         XCTAssert(basic != nil,"test is nil.")
     }
@@ -41,26 +41,26 @@ class WebStructTests: XCTestCase {
         do{
             let _ = try ErrorStruct(
                 "http://localhost:8080/error",
-                param: RequestStruct(value: "hello")
+                body: RequestStruct(value: "hello")
             )
         }
         catch let error as WebStruct.Error{
             switch (error) {
             case .network( _):
                 // Network error
-                XCTAssert( false,"Unexpected error.")
+                XCTAssert( false,"Network error is unexpected.")
             case .http( _):
                 // HTTP error
-                XCTAssert( false,"Unexpected error.")
+                XCTAssert( false,"HTTP error is unexpected.")
             case .ignoreData:
                 // Unexpected response data
-                XCTAssert( false,"Unexpected error.")
+                XCTAssert( false,"IgnoreData error is unexpected.")
             case .parse( _):
                 // Failed parse response data
-                XCTAssert( false,"Unexpected error.")
+                XCTAssert( false,"Parse error is unexpected.")
             case .application(let e):
                 // Server side defined error
-                XCTAssert( e is ApplicationError, "ApplicationError serialize is fail")
+                XCTAssert( e is ApplicationError, "Serialize for ApplicationError is fail.")
             }
         }
         catch {
@@ -73,7 +73,7 @@ class WebStructTests: XCTestCase {
         do{
             let _ = try CustomRequestStruct(
                 "http://localhost:8080/timeout",
-                param: RequestStruct(value: "hello")
+                body: RequestStruct(value: "hello")
             )
         }
         catch let error as WebStruct.Error{
@@ -94,7 +94,7 @@ class WebStructTests: XCTestCase {
         do{
             st = try CustomHeadersStruct(
                 "http://localhost:8080/headers",
-                param: RequestStruct(value: "hello")
+                body: RequestStruct(value: "hello")
             )
         }
         catch let error as WebStruct.Error{
@@ -104,6 +104,6 @@ class WebStructTests: XCTestCase {
             XCTAssert(false,"Test failed.");return
         }
         
-        XCTAssertEqual( st.headers["hello"] , "world" )
+        XCTAssertEqual( st.headers["HeaderForTest"] , "ValueForTest" )
     }
 }
