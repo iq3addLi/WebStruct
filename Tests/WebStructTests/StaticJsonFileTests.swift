@@ -29,7 +29,7 @@ class StaticJsonFileTests: XCTestCase {
     
     func testGetJSONFile() {
         let file:[Place]
-        do{ file = try [Place]("http://motorhomes.addli.jp/assets/json/places.json") }catch{
+        do{ file = try [Place](path: "http://motorhomes.addli.jp/assets/json/places.json") }catch{
             print(error)
             fatalError()
         }

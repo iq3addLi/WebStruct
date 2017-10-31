@@ -31,7 +31,7 @@ class WebStructTests: XCTestCase {
     
     func testBasicInitalize() {
         let basic = try? BasicStruct(
-            "http://localhost:8080/basic",
+            path: "http://localhost:8080/basic",
             body: RequestStruct(value: "hello")
         )
         XCTAssert(basic != nil,"test is nil.")
@@ -40,7 +40,7 @@ class WebStructTests: XCTestCase {
     func testInitializationFailedServersideError(){
         do{
             let _ = try ErrorStruct(
-                "http://localhost:8080/error",
+                path: "http://localhost:8080/error",
                 body: RequestStruct(value: "hello")
             )
         }
@@ -72,7 +72,7 @@ class WebStructTests: XCTestCase {
     func testInitializationFailedDueToTimeout(){
         do{
             let _ = try CustomRequestStruct(
-                "http://localhost:8080/timeout",
+                path: "http://localhost:8080/timeout",
                 body: RequestStruct(value: "hello")
             )
         }
@@ -93,7 +93,7 @@ class WebStructTests: XCTestCase {
         let st:CustomHeadersStruct
         do{
             st = try CustomHeadersStruct(
-                "http://localhost:8080/headers",
+                path: "http://localhost:8080/headers",
                 body: RequestStruct(value: "hello")
             )
         }

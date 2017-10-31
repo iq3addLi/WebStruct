@@ -61,7 +61,7 @@ extension ApplicationError : WebSerializable{
 
 ```Swift
 let basic = try? BasicStruct(
-    "http://localhost:8080/basic",
+    path: "http://localhost:8080/basic",
     body: RequestStruct(value: "hello")
 )
 ```
@@ -70,7 +70,7 @@ let basic = try? BasicStruct(
 ```Swift
 do{
     let _ = try ErrorStruct(
-        "http://localhost:8080/error",
+        path: "http://localhost:8080/error",
         body: RequestStruct(value: "hello")
     )
 }

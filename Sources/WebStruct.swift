@@ -85,8 +85,8 @@ public protocol WebInitializable : WebSerializable {
   Default implement for WebInitializable
  */
 extension WebInitializable{
-    public init(_ path:String, body:Self.bodyType? = nil) throws {
-        self = try WebStruct<Self,Self.errorType>().get( path, body: body)
+    public init(path:String, body:Self.bodyType? = nil) throws {
+        self = try WebStruct<Self,Self.errorType>().get(path: path, body: body)
     }
 
     // default values
@@ -98,7 +98,6 @@ extension WebInitializable{
     public static var session:URLSession {
         return URLSession(configuration: URLSessionConfiguration.default, delegate: nil, delegateQueue: nil)
     }
-    
 }
 
 
@@ -109,7 +108,7 @@ fileprivate struct WebStruct <GenT:WebInitializable,ErrorT:WebSerializable>{
     
     fileprivate init(){}
     
-    fileprivate func get<BodyT:WebDeserializable>(_ path:String, body:BodyT?) throws -> GenT {
+    fileprivate func get<BodyT:WebDeserializable>(path:String, body:BodyT?) throws -> GenT {
         
         // setup for request
         var request = GenT.request
